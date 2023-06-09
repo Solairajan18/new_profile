@@ -1,24 +1,24 @@
-function updateVisitCount() {
-  // Check if the visit count exists in the local storage
-  if (localStorage.getItem('visitCount')) {
-    // Increment the visit count by 1
-    var count = parseInt(localStorage.getItem('visitCount'));
-    count++;
-    localStorage.setItem('visitCount', count);
-  } else {
-    // Set the visit count to 1 if it doesn't exist
-    localStorage.setItem('visitCount', 1);
-  }
+// function updateVisitCount() {
+//   // Check if the visit count exists in the local storage
+//   if (localStorage.getItem('visitCount')) {
+//     // Increment the visit count by 1
+//     var count = parseInt(localStorage.getItem('visitCount'));
+//     count++;
+//     localStorage.setItem('visitCount', count);
+//   } else {
+//     // Set the visit count to 1 if it doesn't exist
+//     localStorage.setItem('visitCount', 1);
+//   }
   
-  // Display the visit count on the page
-  var visitCount = localStorage.getItem('visitCount');
-  var visitCountEle = document.getElementById('visit-count');
-  visitCountEle.innerHTML = visitCount;
-  console.log(visitCountEle);
-}
+//   // Display the visit count on the page
+//   var visitCount = localStorage.getItem('visitCount');
+//   var visitCountEle = document.getElementById('visit-count');
+//   visitCountEle.innerHTML = visitCount;
+//   console.log(visitCountEle);
+// }
 
-// Call the function to update the visit count on page load
-updateVisitCount();
+// // Call the function to update the visit count on page load
+// updateVisitCount();
 (function ($) {
     "use strict";
 
