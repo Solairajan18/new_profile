@@ -218,6 +218,12 @@
 }
 
 .awsbadge {
-  margin: -17px 0;
+  margin: -26px 0;
 }
 
+@media screen and (min-width<768){
+  .awsbadge{
+    display: none;
+  }
+  
+}
