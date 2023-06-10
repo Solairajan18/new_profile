@@ -228,3 +228,27 @@
   }
   
 }
+
+
+.validation-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 20px;
+  background-color: #00B87B;
+  color: #fff;
+  border-radius: 5px;
+  opacity: 0;
+  animation: fade-in 0.5s ease-in-out;
+  z-index: 9999;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

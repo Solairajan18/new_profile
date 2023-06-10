@@ -80,7 +80,7 @@
 
                     <!-- About Start -->
                     <section class="py-5 border-bottom wow fadeInUp" data-wow-delay="0.1s">
-                       <a href="https://www.credly.com/badges/0f8942c9-7fc0-4ece-8ca4-4f158a86ff04" > <img class="float-end mb-3 awsbadge"  width="100" height="100" src="./img/profile.png" alt="Aws Solution Architect Associate"/></a>
+                       <a title="Click to verify" href="https://www.credly.com/badges/0f8942c9-7fc0-4ece-8ca4-4f158a86ff04" > <img class="float-end mb-3 awsbadge"  width="100" height="100" src="./img/profile.png" alt="Aws Solution Architect Associate"/></a>
                         
                         <h1 class="title pb-3 mb-5 w-75">About Me</h1>
                         <p>Motivated and detail-oriented Cloud Engineer with a strong focus on Amazon Web Services (AWS), proficient in designing, implementing, and managing cloud solutions on the AWS platform. Committed to staying up to date with the latest AWS trends, continuously expanding knowledge to deliver high-quality solutions. A collaborative team player with excellent problem-solving skills and a drive for innovation, ready to leverage AWS expertise to contribute to the success of organizations seeking cloud-based solutions.</p>
@@ -160,7 +160,7 @@
                                     <h5>Windows server(IIS)</h5>
                             </div>
                             <div class="col-sm-6">
-                                <p><h5 class="px-1">AWS<a title="click to verify" href="https://www.credly.com/badges/0f8942c9-7fc0-4ece-8ca4-4f158a86ff04" ><img src="../img/profile.png" alt="badge" width="25" height="25"> </a>
+                                <p><h5 class="px-1">AWS<p>
                                 </h5>(Iam, Vpc, Ec2, S3, Lambda, Dynamodb, Cloud Watch, Cloud Trail, Route 53, SNS,SQS, Athena, Rds, Glue, AWS directory service, WAF, SES)</p>
                                 
                             </div>
@@ -378,10 +378,12 @@
                     <!-- Testimonial End -->
 
                     <!-- Contact Start -->
+                    <div id="validation-popup" class="validation-popup"></div>
+
                     <section class="py-5 wow fadeInUp" data-wow-delay="0.1s" id="contact">
                         <h1 class="title pb-3 mb-5">Contact Me</h1>
 						
-                        <form action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfPLlt-WYPMHcCRsRIOEYpXYlZdo9-Mu41EpkZ92HWi8DZNXg/formResponse">
+                        <form onsubmit="return validateForm(event)" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfPLlt-WYPMHcCRsRIOEYpXYlZdo9-Mu41EpkZ92HWi8DZNXg/formResponse">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="form-floating">
@@ -466,8 +468,11 @@
 
         <!-- Template Javascript -->
         <script src="js/main.js"></script>
+
+
+
         <!-- Include the JavaScript code to fetch and display the visit count -->
-        <script>
+        <!-- <script>
             // Fetch the visit count from Google Analytics
             gtag('event', 'page_view', {
               'event_callback': function() {
@@ -475,7 +480,7 @@
                 document.getElementById('visit-count-placeholder').innerHTML = 'Profile visits: ' + visitCount;
               }
             });
-          </script>
+          </script> -->
         
     </body>
 </html>
