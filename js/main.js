@@ -178,3 +178,9 @@
         }, false)
       })
   })()
+
+// sound on click
+  function playClickSound() {
+    var audio = document.getElementById("clickSound");
+    audio.play();
+    }
