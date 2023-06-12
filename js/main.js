@@ -115,46 +115,66 @@
 })(jQuery);
 
 // form validation
-    function validateForm(event) {
-event.preventDefault(); // Prevent the form from submitting automatically
+//     function validateForm(event) {
+// event.preventDefault(); // Prevent the form from submitting automatically
 
-// Get form fields
-var name = document.getElementById("name").value;
-var email = document.getElementById("email").value;
-var subject = document.getElementById("subject").value;
-var message = document.getElementById("message").value;
+// // Get form fields
+// var name = document.getElementById("name").value;
+// var email = document.getElementById("email").value;
+// var subject = document.getElementById("subject").value;
+// var message = document.getElementById("message").value;
 
-// Perform validation
-if (name.trim() === "") {
-showValidationMessage("Please enter your name.");
-return false;
-}
+// // Perform validation
+// if (name.trim() === "") {
+// showValidationMessage("Please enter your name.");
+// return false;
+// }
 
-if (email.trim() === "") {
-showValidationMessage("Please enter your email.");
-return false;
-}
+// if (email.trim() === "") {
+// showValidationMessage("Please enter your email.");
+// return false;
+// }
 
-if (subject.trim() === "") {
-showValidationMessage("Please enter the subject.");
-return false;
-}
+// if (subject.trim() === "") {
+// showValidationMessage("Please enter the subject.");
+// return false;
+// }
 
-if (message.trim() === "") {
-showValidationMessage("Please enter your message.");
-return false;
-}
+// if (message.trim() === "") {
+// showValidationMessage("Please enter your message.");
+// return false;
+// }
 
-// All fields are valid, allow form submission
-event.target.submit(); // Manually submit the form
-}
+// // All fields are valid, allow form submission
+// event.target.submit(); // Manually submit the form
+// }
 
-function showValidationMessage(message) {
-var validationPopup = document.getElementById("validation-popup");
-validationPopup.textContent = message;
-validationPopup.style.opacity = 1;
-setTimeout(function() {
-validationPopup.style.opacity = 0;
-}, 2000); // Hide the message after 2 seconds (adjust the duration as needed)
-}
+// function showValidationMessage(message) {
+// var validationPopup = document.getElementById("validation-popup");
+// validationPopup.textContent = message;
+// validationPopup.style.opacity = 1;
+// setTimeout(function() {
+// validationPopup.style.opacity = 0;
+// }, 2000); // Hide the message after 2 seconds (adjust the duration as needed)
+// }
 
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+    'use strict'
+  
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+  
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+  
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })()

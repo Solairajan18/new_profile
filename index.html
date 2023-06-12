@@ -383,30 +383,42 @@
                     <section class="py-5 wow fadeInUp" data-wow-delay="0.1s" id="contact">
                         <h1 class="title pb-3 mb-5">Contact Me</h1>
 						
-                        <form onsubmit="return validateForm(event)" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfPLlt-WYPMHcCRsRIOEYpXYlZdo9-Mu41EpkZ92HWi8DZNXg/formResponse">
+                        <form class="needs-validation" onsubmit="return validateForm(event)" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfPLlt-WYPMHcCRsRIOEYpXYlZdo9-Mu41EpkZ92HWi8DZNXg/formResponse" novalidate>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="text" name="entry.2005620554" class="form-control border-0 bg-secondary" id="name" placeholder="Your Name">
+                                        <input type="text" name="entry.2005620554" class="form-control border-0 bg-secondary" id="name" placeholder="Your Name"required>
                                         <label for="name">Your Name</label>
+                                          <div class="invalid-feedback">
+                                            Enter Your Name
+                                          </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating">
-                                        <input type="email" name="entry.1045781291" class="form-control border-0 bg-secondary" id="email" placeholder="Your Email">
+                                        <input type="email" name="entry.1045781291" class="form-control border-0 bg-secondary" id="email" placeholder="Your Email" required>
                                         <label for="email">Your Email</label>
+                                        <div class="invalid-feedback">
+                                            Enter Your email
+                                          </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <input type="text" name="entry.1065046570" class="form-control border-0 bg-secondary" id="subject" placeholder="Subject">
+                                        <input type="text" name="entry.1065046570" class="form-control border-0 bg-secondary" id="subject" placeholder="Subject" required>
                                         <label for="subject">Subject</label>
+                                        <div class="invalid-feedback">
+                                            Enter Your Subject
+                                          </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating">
-                                        <textarea class="form-control border-0 bg-secondary" name="entry.1166974658" placeholder="Leave a message here" id="message" style="height: 200px"></textarea>
+                                        <textarea class="form-control border-0 bg-secondary" required name="entry.1166974658" placeholder="Leave a message here" id="message" style="height: 200px"></textarea>
                                         <label for="message">Message</label>
+                                        <div class="invalid-feedback">
+                                            Enter Your Message
+                                          </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
