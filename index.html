@@ -97,7 +97,7 @@
                                 <span class="fw-medium text-primary">Degree:</span> Bsc computer science
                             </div>
                             <div class="col-sm-6 py-1">
-                                <span class="fw-medium text-primary">Experience:</span> 3 Years
+                                <span class="fw-medium text-primary">Experience:</span> 5 Years
                             </div>
                             <div class="col-sm-6 py-1">
                                 <span class="fw-medium text-primary">Phone:</span> 7299519004
@@ -155,15 +155,16 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <h5>Terraform</h5>
+                                    
+                                    <h5>Python</h5>
+                                    <h5>Pytest</h5>
+                                    <h5>Gitlab</h5>
                                     <h5>Basics of Linux</h5>
-                                    <h5>Basics of Python</h5>
-                                    <h5>Basics of html,css,JavaScript</h5>
-                                    <h5>Fundamentals of networking</h5>
                                     <h5>Windows server(IIS)</h5>
                             </div>
                             <div class="col-sm-6">
                                 <h5>AWS</h5>
-                                <p>(Iam, Vpc, Ec2, S3, Lambda, Dynamodb, Cloud Watch, Cloud Trail, Route 53, SNS,SQS, Athena, Rds, Glue, AWS directory service, WAF, SES)</p>
+                                <p>(Iam, Vpc, Ec2, S3, Lambda, Api Gateway, Dynamodb, Cloud Watch, Cloud Trail, Route 53, SNS,SQS, Athena, Rds, Glue, AWS directory service, WAF, SES)</p>
                                 <p><h5 class="px-1">Azure</h5>
                                     (Azure AD, Vnets, Azure Vm, Blob storage, Azure SQL Databases )
                                 </p>
@@ -182,24 +183,61 @@
                                 <span class="bi bi-arrow-right fs-4 text-light position-absolute" style="top: -5px; left: -50px;"></span>
                                 <h5 class="mb-1">Cloud Engineer</h5>
                                 <p class="mb-2">HTC Global Services | <small>February 2022 - Till Now</small></p>
-                                <p>    • Collaborated with a team of professionals to migrate a .NET application and SQL Server database from an on-premises environment to AWS Cloud.<br>
-                                    • Assisted in analyzing the existing infrastructure and determining the migration requirements for the application and database.<br>
-                                    • Worked with senior team members to set up and configure AWS services, including Amazon EC2 for hosting the .NET application and Amazon RDS for the SQL Server database.<br>
-                                    • Took responsibility for installing all the necessary software and dependencies on the server in preparation for the migration.<br>
-                                    • Collaborated with the team to determine the appropriate versions and configurations of the software needed for the .NET application and SQL Server database.<br>
-                                    • Provided innovative solutions to address new requirements that arose during the migration process.<br>
-                                    • Collaborated with stakeholders to understand their needs and deliver tailored solutions that met their specific requirements.<br>
-                                    • Supported testing efforts to validate the functionality and performance of the migrated application, ensuring a seamless transition for end users</p>
-                            </div>
+                                <strong>Mainframe to AWS Modernization</strong><br>
+                                <strong>Client:</strong> <a href="https://www.statefarm.com/" target="_blank">State Farm</a>
+                                    <ul>
+                                    <li>Developed a high-availability API on AWS as part of a modernization project transitioning from mainframe to AWS, utilizing API Gateway (private endpoint) to integrate a private Lambda and DynamoDB for backend operations.</li>
+                                    <li>Implemented disaster recovery (DR) across two regions, deploying API Gateway, Lambda functions, and load balancers in each region and using DynamoDB Global Tables for cross-region data replication.</li>
+                                    <li>Configured Route 53 failover routing with a multi-region load balancer setup and health checks for seamless traffic redirection to healthy endpoints in the event of failure.</li>
+                                    <li>Automated API health monitoring with EventBridge-triggered Lambda functions, which conducted health checks via DynamoDB scans and activated CloudWatch alarms based on API responses.</li>
+                                    <li>Streamlined DR failover process by integrating Route 53 health checks with CloudWatch alarms, ensuring minimal downtime and consistent API availability for end-users.</li>
+                                    <li>Created AWS resources using reusable Terraform modules designed for modular consumption, incorporating custom templates for specific services, all stored in GitLab to ensure accessibility across projects.</li>
+                                    <li>Leveraged a GitLab CI/CD pipeline integrated with Scalr for Terraform state management, utilized Terratest for automated infrastructure code validation, and implemented security compliance checks using Sync Scan and LabLooter, alongside a Pytest stage for unit testing Python code deployed in AWS Lambda functions.</li>
+                                    </ul>
+
+                                    <strong>Data Migration of DB2 to DynamoDB</strong>
+                                    <ul>
+                                    <li>Executed end-to-end data migration from DB2 to DynamoDB, leveraging AWS Transfer Service, S3, Glue, and VPC Endpoint for secure operations.</li>
+                                    <li>Configured AWS Transfer Service with VPC Endpoint to enable private, efficient data transfers to S3.</li>
+                                    <li>Performed ETL with AWS Glue to transform and prepare DB2 data for seamless integration with DynamoDB.</li>
+                                    <li>Enhanced data security and integrity throughout the migration, ensuring compliance with best practices.</li>
+                                    <li>Optimized DynamoDB setup post-migration, enabling fast, reliable data access for application needs.</li>
+                                    <li>Deployed all AWS resources using modular Terraform code, creating reusable modules and templates stored in GitLab for easy cross-project use. The GitLab pipeline utilized Scalr for Terraform state file handling and incorporated Terratest for code validation.</li>
+                                    <li>Integrated continuous security checks with Sync Scan and LabLooter in the pipeline stages, and added a Pytest stage to validate the Python code used in AWS Glue.</li>
+                                    </ul>
+
+                                    <strong>API Lambda Development Project</strong>
+                                    <ul>
+                                    <li>Developed Python code for AWS Lambda functions to support API operations, structuring code into modular files to streamline execution and ensure only necessary code runs.</li>
+                                    <li>Implemented robust input validation and comprehensive exception handling, adhering to best practices and standardized naming conventions to improve code readability and maintainability.</li>
+                                    <li>Optimized Lambda performance by minimizing execution time and memory usage, ensuring efficient resource utilization.</li>
+                                    <li>Designed and implemented unit tests with Pytest to validate code functionality, improving reliability and enabling continuous integration with automated testing in the pipeline.</li>
+                                    <li>Created High-Level Design (HLD), Low-Level Design (LLD), and component specification documents to detail the architecture, design considerations, and component specifics, enhancing project clarity and support for future development.</li>
+                                    </ul>
+
+                                    <strong>Atos Cloud to AWS Migration</strong><br>
+                                    <strong>Client:</strong> <a href="https://www.domesticappliances.philips.co.in/" target="_blank">Philips DA</a>
+                                    <ul>
+                                    <li>Collaborated on migrating a .NET application and SQL Server database from Atos Cloud to AWS.</li>
+                                    <li>Analyzed infrastructure and defined migration requirements with the team.</li>
+                                    <li>Configured AWS services, including EC2 for application hosting and RDS for SQL Server.</li>
+                                    <li>Installed necessary software and dependencies, ensuring compatibility.</li>
+                                    <li>Supported testing to validate functionality and performance post-migration.</li>
+                                    <li>Delivered solutions tailored to stakeholder needs, addressing migration challenges.</li>
+                                    </ul>
+
+                                </div>
                             <div class="position-relative mb-4">
                                 <span class="bi bi-arrow-right fs-4 text-light position-absolute" style="top: -5px; left: -50px;"></span>
-                                <h5 class="mb-1">Transaction Processing</h5>
+                                <h5 class="mb-1">Network Infrastructure Design</h5>
                                 <p class="mb-2">Accenture | <small>MARCH 2020 - OCTOBER 2021</small></p>
-                                <p><b>Vectorization:</b>
-                                    Digital mapping of a raster map using the INCA (client tool) to place digital traces, measurements, splice, cabinet, pipes and cables.<br>
-                                    <b>FTTH:</b>
-                                    If the customer requests a new fiber connection in FTTH, I will design and create a diagram to connect the fiber cable to the home via pipes, splices, and cabinets from the existing main 7-way pipe LAN connection.</p>
-                            </div>
+                                <strong>Client:</strong> <a href="https://tdcgroup.com/" target="_blank">TDC</a>
+                                    <ul>
+                                        <li>Utilized the INCA tool to strategically design fiber cable placements across Denmark.</li>
+                                        <li>Developed accurate network maps by referencing legacy copper cable layouts, transitioning the design from copper to modern fiber infrastructure.</li>
+                                        <li>Ensured optimized internet infrastructure to support advanced connectivity needs by leveraging geographic data and existing network schematics.</li>
+                                    </ul>    
+                                </div>
                         </div>
                     </section>
                     <!-- Expericence End -->
@@ -469,7 +507,7 @@
                             </div> -->
 							
                             <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-							<p class="m-0"> Powered by <a href="https://solai.website">Solai</a></p>
+							<p class="m-0"> Powered by <a href="https://solairajan.online">Solai</a></p>
                         </div>
                     </section>
                     <!-- Footer End -->
