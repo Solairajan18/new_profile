@@ -294,3 +294,20 @@
   opacity: 1;
 }
 
+/* blink my quote */
+
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.blinking-text {
+    animation: blink 1s infinite;
+    text-align: center; /* Centering the text */
+    font-size: 20px; /* Adjust font size as needed */
+    color: #fff; /* Change text color if needed */
+    margin: 20px 0; /* Add spacing if necessary */
+}
+
+
