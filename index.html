@@ -425,59 +425,81 @@
                     <!-- Testimonial End -->
 
                     <!-- Contact Start -->
-                    <div id="validation-popup" class="validation-popup"></div>
+<div id="validation-popup" class="validation-popup"></div>
 
-                    <section class="py-5 wow fadeInUp" data-wow-delay="0.1s" id="contact">
-                        <h1 class="title pb-3 mb-5">Contact Me</h1>
-						
-                        <form class="needs-validation" onsubmit="return validateForm(event)" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfPLlt-WYPMHcCRsRIOEYpXYlZdo9-Mu41EpkZ92HWi8DZNXg/formResponse" novalidate>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="text" name="entry.2005620554" class="form-control border-0 bg-secondary" id="name" placeholder="Your Name"required>
-                                        <label for="name">Your Name</label>
-                                          <div class="invalid-feedback">
-                                            Enter Your Name
-                                          </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="email" name="entry.1045781291" class="form-control border-0 bg-secondary" id="email" placeholder="Your Email" required>
-                                        <label for="email">Your Email</label>
-                                        <div class="invalid-feedback">
-                                            Enter Your email
-                                          </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <input type="text" name="entry.1065046570" class="form-control border-0 bg-secondary" id="subject" placeholder="Subject" required>
-                                        <label for="subject">Subject</label>
-                                        <div class="invalid-feedback">
-                                            Enter Your Subject
-                                          </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-floating">
-                                        <textarea class="form-control border-0 bg-secondary" required name="entry.1166974658" placeholder="Leave a message here" id="message" style="height: 200px"></textarea>
-                                        <label for="message">Message</label>
-                                        <div class="invalid-feedback">
-                                            Enter Your Message
-                                          </div>
-                                    </div>
-                                </div>
-                                <audio id="clickSound" src="welcome.mp3" preload="auto"></audio>
-                                
-                                <div class="col-12">
-                                    <button onclick="playClickSound()" class="btn btn-primary w-100 py-3" type="submit">Send Message</button>
-                                </div>
-                            </div>
-                        </form>
-                    </section>
+<section class="py-5 wow fadeInUp" data-wow-delay="0.1s" id="contact">
+    <h1 class="title pb-3 mb-5">Contact Me</h1>
+
+    <form class="needs-validation" onsubmit="return validateForm(event)" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSfPLlt-WYPMHcCRsRIOEYpXYlZdo9-Mu41EpkZ92HWi8DZNXg/formResponse" novalidate>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="form-floating">
+                    <input type="text" name="entry.2005620554" class="form-control border-0 bg-secondary" id="name" placeholder="Your Name" required>
+                    <label for="name">Your Name</label>
+                    <div class="invalid-feedback">Enter Your Name</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating">
+                    <input type="email" name="entry.1045781291" class="form-control border-0 bg-secondary" id="email" placeholder="Your Email" required>
+                    <label for="email">Your Email</label>
+                    <div class="invalid-feedback">Enter Your email</div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-floating">
+                    <input type="text" name="entry.1065046570" class="form-control border-0 bg-secondary" id="subject" placeholder="Subject" required>
+                    <label for="subject">Subject</label>
+                    <div class="invalid-feedback">Enter Your Subject</div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-floating">
+                    <textarea class="form-control border-0 bg-secondary" required name="entry.1166974658" placeholder="Leave a message here" id="message" style="height: 200px"></textarea>
+                    <label for="message">Message</label>
+                    <div class="invalid-feedback">Enter Your Message</div>
+                </div>
+            </div>
+
+            <!-- CAPTCHA -->
+            <div class="col-12">
+                <div class="g-recaptcha" data-sitekey="6LexdBUrAAAAAKNIqLk61spt3wHS5llpUcEdnvJx"></div>
+                <div id="captcha-error" class="text-danger mt-2" style="display: none;">Please complete the CAPTCHA</div>
+            </div>
+
+            <audio id="clickSound" src="welcome.mp3" preload="auto"></audio>
+
+            <div class="col-12">
+                <button onclick="playClickSound()" class="btn btn-primary w-100 py-3" type="submit">Send Message</button>
+            </div>
+        </div>
+    </form>
+</section>
                     <!-- Contact End -->
+<!-- Add reCAPTCHA JS -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+<script>
+    function playClickSound() {
+        const clickSound = document.getElementById('clickSound');
+        if (clickSound) clickSound.play();
+    }
+
+    function validateForm(event) {
+        const captchaResponse = grecaptcha.getResponse();
+        const captchaError = document.getElementById("captcha-error");
+
+        if (captchaResponse.length === 0) {
+            event.preventDefault(); // stop form submission
+            captchaError.style.display = "block";
+            return false;
+        } else {
+            captchaError.style.display = "none";
+        }
+
+        return true; // continue form submission
+    }
+</script>
                     <!-- Footer Start -->
                     <section class="wow fadeIn" data-wow-delay="0.1s">
                         <div class="bg-secondary text-light text-center p-5">
