@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Tools</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      margin: 0;
+      padding: 20px;
+      color: #fff;
+      opacity: 0; /* Start with invisible */
+      animation: fadeIn 1s ease-in-out forwards; /* Fade-in animation */
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Card Styles */
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Input and Button Styles */
+    input, button, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    input {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    input::placeholder {
+      color: #ddd;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: #2980b9;
+      transform: scale(1.05);
+    }
+
+    /* Output Styles */
+    .output {
+      margin-top: 10px;
+      text-align: center;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Download Button Styles */
+    .download-btn {
+      display: inline-block;
+      margin-top: 10px;
+      text-align: center;
+      background: #2ecc71;
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .download-btn:hover {
+      background: #27ae60;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🛠️ My Tools</h1>
+
+  <div class="container">
+    
+    <!-- QR Code Generator -->
+    <div class="card">
+      <h2>🔗 QR Code Generator</h2>
+      <input type="text" id="qrInput" placeholder="Enter URL">
+      <button onclick="generateQR()">Generate QR</button>
+      <div class="output" id="qrResult"></div>
+    </div>
+
+    <!-- Image to PDF -->
+    <div class="card">
+      <h2>📑 Image to PDF</h2>
+      <input type="file" id="imageToPdfInput">
+      <button onclick="imageToPdf()">Convert to PDF</button>
+      <div class="output" id="imageToPdfResult"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE_URL = 'https://fileutilitysite.vercel.app'; // Replace with your API base URL
+
+    // QR Code Generation
+    function generateQR() {
+      const url = document.getElementById("qrInput").value;
+      if (!url) {
+        alert("Please enter a URL");
+        return;
+      }
+      fetch(`${API_BASE_URL}/generate_qr`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to generate QR code");
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const imgURL = URL.createObjectURL(blob);
+        const domain = new URL(url).hostname.split('.').slice(-2).join('.').split(':')[0];
+        const fileName = `${domain}.png`;
+        document.getElementById("qrResult").innerHTML = `
+          <img src="${imgURL}" alt="QR Code">
+          <a href="${imgURL}" download="${fileName}" class="download-btn">⬇️ Download QR (${fileName})</a>
+        `;
+      })
+      .catch(err => alert("Error generating QR: " + err));
+    }
+
+    // Image to PDF Conversion
+  function imageToPdf() {
+    const fileInput = document.getElementById("imageToPdfInput");
+    if (!fileInput.files.length) {
+      alert("Please select an image file");
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const originalFileName = file.name.split('.').slice(0, -1).join('.'); // Remove the file extension
+    const convertedFileName = `${originalFileName}-converted.pdf`; // Add the suffix
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch(`${API_BASE_URL}/image_to_pdf`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Failed to convert image to PDF");
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const fileURL = URL.createObjectURL(blob);
+      document.getElementById("imageToPdfResult").innerHTML = `
+        <a href="${fileURL}" download="${convertedFileName}" class="download-btn">⬇️ Download PDF (${convertedFileName})</a>
+      `;
+    })
+    .catch(err => alert("Error converting image to PDF: " + err));
+  }
+  </script>
+<!-- Footer Start -->
+<footer style="background: rgba(0, 0, 0, 0.8); color: #fff; text-align: center; padding: 20px; border-radius: 10px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000;">
+  <p>Powered by <a href="https://solairajan.online" style="color: #3498db; text-decoration: none;">Solai</a></p>
+  <div>
+    <a href="https://www.facebook.com/solai.abde" style="margin: 0 10px; color: #3498db; text-decoration: none;">Facebook</a> |
+    <a href="https://www.linkedin.com/in/solai-rajan-94479816b" style="margin: 0 10px; color: #3498db; text-decoration: none;">LinkedIn</a> |
+    <a href="https://www.instagram.com/solai.kamaraj/" style="margin: 0 10px; color: #3498db; text-decoration: none;">Instagram</a> |
+    <a href="https://wa.me/7299519004?text=Hi Solai" style="margin: 0 10px; color: #3498db; text-decoration: none;">WhatsApp</a>
+  </div>
+</footer>
+<!-- Footer End -->
+</body>
+</html>
