@@ -517,7 +517,7 @@
                                 <a class="btn btn-dark btn-square mx-1" href="https://www.linkedin.com/in/solai-rajan-94479816b"><i class="fab fa-linkedin-in"></i></a>
                                 <a class="btn btn-dark btn-square mx-1" href="https://www.instagram.com/solai.kamaraj/"><i class="fab fa-instagram"></i></a>
                                 <a class="btn btn-dark btn-square mx-1" href="https://wa.me/7299519004?text=Hi Solai"><i class="fab fa-whatsapp"></i></a>
-                                <a class="btn btn-dark btn-square mx-1" href="https://linktr.ee/solairajan"><svg viewBox="0.641 1.282 417 512.238" width="1em" height="1em">
+                                <a class="btn btn-dark btn-square mx-1" href="https://linktr.ee/solairajan"><svg viewBox="641 1282 417 512.238" width="1em" height="1em">
                                     <path fill-rule="nonzero" d="M 171.915 346.224 L 246.005 346.224 L 246.005 513.52 L 171.915 513.52 L 171.915 346.224 Z M 0.641 174.75 L 126.709 174.75 L 37.087 89.31 L 86.678 38.325 L 172.117 126.154 L 172.117 1.282 L 246.203 1.282 L 246.203 126.154 L 331.641 38.525 L 381.193 89.31 L 291.613 174.55 L 417.641 174.55 L 417.641 245.052 L 290.893 245.052 L 381.076 332.681 L 331.641 382.474 L 209.16 259.392 L 86.678 382.474 L 37.087 332.883 L 127.305 245.252 L 0.641 245.252 L 0.641 174.75 L 0.641 174.75 Z" style="fill: rgb(242, 242, 242);"></path>
                                   </svg></a>
                                   <a class="btn btn-dark btn-square mx-1" href="https://solairajan18.medium.com/"><svg viewBox="0 0 1043.63 592.71" class="aa bb">
@@ -569,6 +569,7 @@
 
         <!-- Template Javascript -->
         <script src="js/main.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
 
 
 
@@ -588,10 +589,12 @@
         <i class="fas fa-comment-dots"></i>
     </div>
     <div class="chat-window">
-        <div class="chat-header">
-            <!-- <h5>SolAI</h5> -->
-            <h5>Sol<span style="color: rgb(33, 233, 26); font-weight: bold;">AI</span></h5>
-            <button class="close-btn" onclick="toggleChat()">&times;</button>
+        <div class="chat-header" style="display: flex; align-items: flex-start; justify-content: space-between;">
+            <div style="display: flex; flex-direction: column; flex: 1;">
+                <h5 style="margin: 0;">Sol<span style="color: rgb(33, 233, 26); font-weight: bold;">AI</span></h5>
+                <span style="font-size: 0.85rem; color: #ffe066; font-weight: 500; margin-top: 2px; letter-spacing: 0.1px;">The response may be slow</span>
+            </div>
+            <button class="close-btn" onclick="toggleChat()" style="align-self: flex-start; margin-left: 10px;">&times;</button>
         </div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input">
@@ -626,73 +629,141 @@
     font-size: 1.5rem;
 }
 
+/* Redesigned chat styles for a modern, beautiful look */
 .chat-window {
     display: none;
-    width: 300px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    width: 340px;
+    background: #23272f;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    overflow: hidden;
+    animation: chat-fade-in 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes chat-fade-in {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .chat-header {
-    background: #007bff;
-    color: white;
-    padding: 15px;
-    border-radius: 10px 10px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background: linear-gradient(90deg, #00B87B 0%, #007bff 100%);
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: 18px 18px 0 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
 .chat-messages {
-    height: 300px;
+    height: 340px;
     overflow-y: auto;
-    padding: 15px;
-    background: #f8f9fa;
+    padding: 18px 16px;
+    background: #1a1d23;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    margin-bottom: 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    max-width: 85%;
+    word-break: break-word;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: background 0.3s, color 0.3s;
+}
+
+.user-message {
+    background: linear-gradient(90deg, #007bff 60%, #00B87B 100%);
+    color: #fff;
+    align-self: flex-end;
+    margin-left: 15%;
+    border-bottom-right-radius: 4px;
+}
+
+.bot-message {
+    background: #fff;
+    color: #23272f;
+    align-self: flex-start;
+    margin-right: 15%;
+    border-bottom-left-radius: 4px;
+    position: relative;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.bot-message a {
+    color: #007bff !important;
+    background: #e6f0ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-decoration: underline;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    word-break: break-all;
+}
+.bot-message a:hover {
+    background: #00B87B;
+    color: #fff !important;
+    text-decoration: none;
 }
 
 .chat-input {
     display: flex;
-    padding: 10px;
-    background: white;
-    border-top: 1px solid #ddd;
+    padding: 12px 10px;
+    background: #23272f;
+    border-top: 1px solid #22242a;
 }
 
 .chat-input input {
     flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-right: 5px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    margin-right: 8px;
+    background: #181a20;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: background 0.2s;
 }
 
-.message {
-    margin-bottom: 10px;
-    padding: 8px;
-    border-radius: 5px;
+.chat-input input:focus {
+    background: #23272f;
 }
 
-.user-message {
+button {
+    background: linear-gradient(90deg, #00B87B 0%, #007bff 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0 18px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+button:hover {
     background: #007bff;
-    color: white;
-    margin-left: 20%;
+    color: #fff;
 }
-
-.bot-message {
-    background: #28a745; /* Green background */
-    color: white; /* White text */
-    padding: 8px;
-    border-radius: 5px;
-    margin-right: 20%;
-}
-
 
 .close-btn {
     background: none;
     border: none;
-    color: white;
+    color: #fff;
     font-size: 1.5rem;
     cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.close-btn:hover {
+    opacity: 1;
 }
 </style>
 
@@ -723,6 +794,7 @@
         try {
             // Send message to API
             const response = await fetch('https://flask-hello-world-six-murex-51.vercel.app/', { // Replace with your actual API URL
+            // const response = await fetch(' http://127.0.0.1:8000', { // Replace with your actual API URL
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -732,10 +804,11 @@
 
             const data = await response.json();
 
-            // Add bot response
+            // Add bot response (Markdown rendering)
             const botMessageDiv = document.createElement("div");
             botMessageDiv.classList.add("message", "bot-message");
-            botMessageDiv.textContent = data.response;
+            // Use marked to convert markdown to HTML (full support)
+            botMessageDiv.innerHTML = marked.parse(data.response);
             messagesDiv.appendChild(botMessageDiv);
 
         } catch (error) {

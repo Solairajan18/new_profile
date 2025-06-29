@@ -310,4 +310,20 @@
     margin: 20px 0; /* Add spacing if necessary */
 }
 
+/* Highlight hyperlinks in chat bot messages */
+.bot-message a {
+  color: #222 !important; /* black or near-black for contrast */
+  background: #FFD600;   /* yellow highlight for visibility */
+  padding: 2px 4px;
+  border-radius: 3px;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+}
+.bot-message a:hover {
+  background: #00B87B;
+  color: #fff !important;
+  text-decoration: none;
+}
+
 
