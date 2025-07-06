@@ -1,7 +1,18 @@
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import random
+from thefuzz import fuzz
+import re,os
+import requests
+import logging
+# Env variables local testing 
+if  os.getenv("ENV") == "local":
+    # Only load .env in local development
+    from dotenv import load_dotenv
+
+    load_dotenv()
 
 app = FastAPI()
 
@@ -44,34 +55,24 @@ keyword_responses = {
         "I'm Solai Rajan, a cloud engineer specializing in AWS, GitLab CI/CD, and infrastructure as code.",
     ],
     "experience": [
-        "I have experience in AWS, Terraform, Python, Kubernetes, and GitLab CI/CD.",
-        "I've worked on cloud modernization, API development, and infrastructure automation.",
-        "I specialize in mainframe-to-AWS modernization, high-availability architectures, and CI/CD automation."
+        "I have over five years of experience in the IT industry, focusing on cloud engineering and automation with AWS, Terraform, Python, Pytest, BDD testing, and GitLab CI/CD.",
     ],
     "education": [
-        "I have a strong foundation in cloud computing, DevOps, and software development.",
-        "I continuously upskill in AWS, Terraform, and automation technologies.",
+        "I am a BSc graduate with a strong foundation in cloud computing, DevOps, and software development.",
     ],
     "certifications": [
-        "I'm certified in AWS Cloud technologies.",
-        "I hold AWS certifications that validate my expertise in cloud architecture and infrastructure automation."
+        "I'm certified AWS Solution Architect Associate and Microsoft Certified Azure Fundamentals."
     ],
 
     # TECHNICAL SKILLS
     "skills": [
-        "My key skills include AWS, Terraform, Python, Kubernetes, GitLab CI/CD, and cloud automation.",
-        "I specialize in cloud architecture, API development, and infrastructure as code.",
-        "I'm skilled in designing high-availability AWS architectures and automating deployments using Terraform."
+        "My key skills include AWS, Terraform, Python, GitLab CI/CD, BDD, Pytest, and cloud automation."
     ],
     "aws": [
-        "I have experience in AWS services like API Gateway, Lambda, DynamoDB, VPC, and more.",
-        "I specialize in AWS cloud architecture, security best practices, and automation with Terraform.",
-        "I have hands-on experience with AWS Transfer Service, S3, Glue, DynamoDB, and VPC Endpoints."
+        "I have experience in AWS services like API Gateway, Lambda, DynamoDB, VPC, and more."
     ],
     "terraform": [
-        "I use Terraform for infrastructure as code, automating AWS deployments.",
-        "I build reusable Terraform modules and integrate them with GitLab CI/CD.",
-        "I implemented Terraform automation for AWS, managing state files using Scalr."
+        "I use Terraform for infrastructure as code, automating AWS deployments with reusable modules."
     ],
     "python": [
         "I develop serverless applications and automation scripts using Python.",
@@ -84,16 +85,14 @@ keyword_responses = {
         "I use GitLab runners to automate infrastructure provisioning and API deployments."
     ],
     "github": [
-        "You can check out my GitHub profile for code samples and projects.",
         "Find my GitHub projects at: [https://github.com/your-github-profile/](https://github.com/your-github-profile/)"
     ],
-    "docker": [
-        "I’m currently improving my skills in Docker containerization and Kubernetes orchestration.",
-        "While I mainly work with AWS and Terraform, I'm also learning Docker for containerized deployments."
-    ],
-    "kubernetes": [
-        "I'm learning Kubernetes for container orchestration and scaling microservices.",
-        "I use Kubernetes for managing containerized workloads efficiently."
+    # "docker": [
+    #     "I’m currently improving my skills in Docker containerization.",
+    #     "While I mainly work with AWS and Terraform, I'm also learning Docker for containerized deployments."
+    # ],
+    "tech": [
+        "Favorite tech stack: AWS, Terraform, Python, GitLab CI/CD, and cloud automation."
     ],
     "devops": [
         "I follow DevOps best practices, automating CI/CD pipelines for cloud deployments.",
@@ -106,27 +105,20 @@ keyword_responses = {
 
     # PROJECTS
     "projects": [
-        "I worked on mainframe-to-AWS modernization, DB2 to DynamoDB migration, and high-availability APIs.",
-        "Some of my key projects include building API Gateways with Lambda authorizers and Terraform-based AWS automation.",
-        "I also worked on disaster recovery automation using Route 53 health checks and CloudWatch alarms.",
-        "You can check out my projects on my portfolio website: [https://solairajan.online/](https://solairajan.online/)"
+        "I worked on mainframe-to-AWS modernization, DB2 to DynamoDB migration, and developed high-availability APIs. You can also check out my projects on my portfolio website: [https://solairajan.online/](https://solairajan.online/)"
     ],
 
     # CONTACT
     "contact": [
-        "You can reach me via my website: [https://solairajan.online/](https://solairajan.online/)",
-        "Feel free to connect with me on LinkedIn! You can find my details on my portfolio website."
+        "You can reach me via my website: [https://solairajan.online/](https://solairajan.online/), LinkedIn: [https://www.linkedin.com/in/solai-rajan/](https://www.linkedin.com/in/solai-rajan/), email: [solai13kamaraj@gmail.com](mailto:solai13kamaraj@gmail.com), and GitHub: [https://github.com/Solairajan18](https://github.com/Solairajan18)"
     ],
     "resume": [
-        "You can find my resume on my website: [https://solairajan.online/](https://solairajan.online/)",
-        "Check out my resume and projects on my portfolio page."
+        "You can find my resume on my website: [https://solairajan.online/](https://solairajan.online/) (click Download CV)."
     ],
 
     # FUN TOPICS
     "clash of clans": [
-        "I play Clash of Clans and I'm currently at Town Hall 15.",
-        "My favorite attack strategy is the Hybrid Army (Hog Riders + Miners).",
-        "I often battle against TH16 opponents and adjust my strategy accordingly!"
+        "I play Clash of Clans and I'm currently at Town Hall 15., My favorite attack strategy is the Hybrid Army (Hog Riders + Miners). I often battle against TH16 opponents and adjust my strategy accordingly!"
     ],
     "hobbies": [
         "I enjoy gaming, learning new cloud technologies, and optimizing infrastructure deployments.",
@@ -152,22 +144,114 @@ default_responses = [
     "That's interesting! You can ask me about my cloud expertise or GitLab experience.",
 ]
 
-# Function to get responses for multiple keywords
-def get_response(message: str):
-    message = message.lower()
-    matched_responses = []
+API_URL = 'https://openrouter.ai/api/v1/chat/completions'
+DEEPSEEK_API_KEY=os.getenv("DEEPSEEK_API_KEY")
+MODEL = 'deepseek/deepseek-r1:free'
 
+def get_response(message: str):
+    message = message.lower().strip()
+    threshold = 70  # Adjust threshold for fuzzy matching
+
+    # Self-introduction for identity-related queries
+    identity_phrases = [
+        "who are you", "what is your name", "your name", "are you a bot", "what are you"
+    ]
+    for phrase in identity_phrases:
+        if fuzz.partial_ratio(phrase, message) >= threshold:
+            return "**Hi there! I'm SolAI**, a friendly chatbot created by **Solai Rajan** to help you with portfolio questions, tech topics, or just to have a fun chat!"
+
+    # Check if the user is asking about skills
+    skill_phrases = [
+        "what is your skill", "your primary skill", "your main skill",
+        "what skills do you have", "tell me about your skills"
+    ]
+    for phrase in skill_phrases:
+        if fuzz.partial_ratio(phrase, message) >= threshold:
+            return "My key skills include AWS, Terraform, Python, Kubernetes, GitLab CI/CD, and cloud automation. Feel free to ask SolAI anything!"
+
+    # Check if the user is asking about total experience using fuzzy matching
+    experience_phrases = [
+        "how many years", "years of experience", "total experience", "what's your experience", 
+        "how much experience", "your work experience", "tell me your experience"
+    ]
+    for phrase in experience_phrases:
+        if fuzz.partial_ratio(phrase, message) >= threshold:
+            return "SolAI has a total of five years of experience in the IT Industry!"
+
+    # Extract words from the user's message
+    words = re.findall(r'\b[a-zA-Z0-9]+\b', message)
+
+    # Identify unknown skills/technologies first
+    experience_keywords = ["know", "experience", "familiar with", "worked with", "used", "do you use", "have you used"]
+    detected_skill = None
+
+    for exp_word in experience_keywords:
+        if exp_word in message:
+            exp_index = message.find(exp_word) + len(exp_word)
+            potential_skills = message[exp_index:].strip().split()
+            for word in potential_skills:
+                word_cleaned = word.strip(".,?!")
+                if word_cleaned and word_cleaned not in keyword_responses:
+                    detected_skill = word_cleaned.capitalize()
+                    break
+            break
+
+    if detected_skill:
+        return f"No, SolAI doesn't have experience in {detected_skill}, but always eager to learn new things!"
+
+    matched_responses = []
     for keyword, responses in keyword_responses.items():
-        if keyword in message:
+        score = fuzz.partial_ratio(keyword, message)
+        if score >= threshold:
             matched_responses.append(random.choice(responses))
 
     if matched_responses:
         return " ".join(matched_responses)
 
-    return random.choice(default_responses)
+    # Friendly fallback for any unknown/casual chat
+    casual_fallbacks = [
+        "I'm SolAI! I love chatting about tech, hobbies, or anything on your mind. 😊",
+        "SolAI here! If you want to talk about my portfolio, skills, or just have a casual chat, I'm all ears!",
+        "Not sure I got that, but SolAI is always happy to chat! Ask me anything, professional or fun.",
+        "SolAI can help with portfolio questions or just keep you company. What's up?"
+    ]
+    return random.choice(casual_fallbacks)
 
-# API Endpoint
+
+
+    
 @app.post("/")
 def chat(request: ChatRequest):
-    response = get_response(request.message)
-    return {"response": response}
+    user_message = request.message
+    base_response = get_response(user_message)
+    # Friendly, markdown, and only introduce as SolAI if asked
+    prompt = (
+        "You are SolAI, a super friendly AI chatbot created by Solai Rajan. "
+        "Answer questions about Solai Rajan's portfolio, skills, experience, or have a casual, friendly conversation. "
+        "Always respond in Markdown format, and keep the tone warm, helpful, and approachable. "
+        "Only introduce yourself as SolAI, a chatbot created by Solai Rajan, if the user asks about your identity.\n\n"
+        f"User: {user_message}\n"
+        f"SolAI: {base_response}\n"
+        "Now, reply to the user in Markdown as SolAI:"
+    )
+    payload = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": "You are SolAI, a super friendly AI chatbot created by Solai Rajan. Answer questions about Solai Rajan's portfolio, skills, experience, or have a casual, friendly conversation. Always respond in Markdown format, and keep the tone warm, helpful, and approachable. Only introduce yourself as SolAI, a chatbot created by Solai Rajan, if the user asks about your identity."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+    headers = {
+        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    try:
+        llm_response = requests.post(API_URL, json=payload, headers=headers, timeout=10)
+
+        llm_response.raise_for_status()
+        data = llm_response.json()
+        ai_reply = data.get("choices", [{}])[0].get("message", {}).get("content", base_response)
+    except Exception as e:
+        logging.getLogger("uvicorn.error").error(f"Error occurred: {e}")
+        ai_reply = base_response
+    return {"response": ai_reply}
