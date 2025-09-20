@@ -592,7 +592,13 @@
         <div class="chat-header" style="display: flex; align-items: flex-start; justify-content: space-between;">
             <div style="display: flex; flex-direction: column; flex: 1;">
                 <h5 style="margin: 0;">Sol<span style="color: rgb(33, 233, 26); font-weight: bold;">AI</span></h5>
-                <span style="font-size: 0.85rem; color: #ffe066; font-weight: 500; margin-top: 2px; letter-spacing: 0.1px;">The response may be slow</span>
+                <div class="api-selector">
+                    <input type="radio" id="rest-api" name="api-type" value="rest" checked>
+                    <label for="rest-api">REST</label>
+                    <input type="radio" id="ws-api" name="api-type" value="ws">
+                    <label for="ws-api">WebSocket</label>
+                    <span id="ws-status"></span>
+                </div>
             </div>
             <button class="close-btn" onclick="toggleChat()" style="align-self: flex-start; margin-left: 10px;">&times;</button>
         </div>
@@ -613,6 +619,25 @@
     right: 20px;
     z-index: 1000;
 }
+
+.api-selector {
+    font-size: 0.8rem;
+    margin-top: 4px;
+    color: #ccc;
+}
+.api-selector input {
+    margin-left: 5px;
+}
+.api-selector label {
+    cursor: pointer;
+}
+#ws-status {
+    margin-left: 10px;
+    font-weight: bold;
+}
+#ws-status.connecting { color: #ffe066; }
+#ws-status.connected { color: #21e91a; }
+#ws-status.disconnected { color: #ff6b6b; }
 
 .chat-icon {
     width: 64px;
@@ -844,6 +869,77 @@ button:hover {
 </style>
 
 <script>
+    let socket = null;
+    let apiMode = 'rest';
+    const wsUrl = 'wss://web-socket-2-3knj.onrender.com';
+    // const wsUrl = 'ws://localhost:8765'; // For local testing, change to your WebSocket server URL in production
+
+    function setWsStatus(status, text) {
+        const statusEl = document.getElementById('ws-status');
+        statusEl.className = status;
+        statusEl.textContent = text;
+    }
+
+    function initWebSocket() {
+        if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+            return;
+        }
+        socket = new WebSocket(wsUrl);
+        setWsStatus('connecting', 'Connecting...');
+
+        socket.onopen = () => {
+            setWsStatus('connected', 'Connected');
+        };
+
+        socket.onmessage = (event) => {
+            const messagesDiv = document.getElementById('chat-messages');
+            const typingIndicator = messagesDiv.querySelector('.typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+
+            const data = JSON.parse(event.data);
+            const botMessage = data.message || "Received empty message.";
+            
+            const botMessageDiv = document.createElement("div");
+            botMessageDiv.classList.add("message", "bot-message");
+            messagesDiv.appendChild(botMessageDiv);
+            
+            const html = marked.parse(botMessage);
+            typeBotMessage(botMessageDiv, html);
+        };
+
+        socket.onerror = (error) => {
+            console.error("WebSocket Error:", error);
+            setWsStatus('disconnected', 'Error');
+        };
+
+        socket.onclose = () => {
+            setWsStatus('disconnected', 'Disconnected');
+            socket = null;
+        };
+    }
+
+    function closeWebSocket() {
+        if (socket) {
+            socket.onclose = null; // Prevent onclose handler from firing on manual close
+            socket.close();
+            socket = null;
+        }
+        setWsStatus('', '');
+    }
+
+    document.querySelectorAll('input[name="api-type"]').forEach(radio => {
+        radio.addEventListener('change', (event) => {
+            apiMode = event.target.value;
+            if (apiMode === 'ws') {
+                initWebSocket();
+            } else {
+                closeWebSocket();
+            }
+        });
+    });
+
     function toggleChat() {
         const chatWindow = document.querySelector('.chat-window');
         chatWindow.style.display = chatWindow.style.display === 'none' || chatWindow.style.display === '' ? 'block' : 'none';
@@ -868,6 +964,68 @@ button:hover {
         }
     }
 
+    // Helper: typewriter effect for HTML content
+    function typeBotMessage(element, html, delay = 18) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const nodes = Array.from(tempDiv.childNodes);
+        element.innerHTML = '';
+        let nodeIdx = 0;
+
+        function typeNode(node, parent) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                let text = node.textContent;
+                let i = 0;
+                function typeChar() {
+                    if (i < text.length) {
+                        parent.appendChild(document.createTextNode(text[i]));
+                        i++;
+                        setTimeout(typeChar, delay);
+                        element.scrollIntoView({ behavior: "smooth", block: "end" });
+                    } else {
+                        typeNextNode();
+                    }
+                }
+                typeChar();
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = document.createElement(node.nodeName);
+                for (let attr of node.attributes) {
+                    el.setAttribute(attr.name, attr.value);
+                }
+                parent.appendChild(el);
+                let childNodes = Array.from(node.childNodes);
+                let childIdx = 0;
+                function typeChild() {
+                    if (childIdx < childNodes.length) {
+                        typeNode(childNodes[childIdx], el);
+                        childIdx++;
+                    } else {
+                        typeNextNode();
+                    }
+                }
+                if (childNodes.length > 0) {
+                    typeNode(childNodes[childIdx], el);
+                    childIdx++;
+                } else {
+                    typeNextNode();
+                }
+            } else {
+                typeNextNode();
+            }
+        }
+
+        function typeNextNode() {
+            nodeIdx++;
+            if (nodeIdx < nodes.length) {
+                typeNode(nodes[nodeIdx], element);
+            }
+        }
+
+        if (nodes.length > 0) {
+            typeNode(nodes[nodeIdx], element);
+        }
+    }
+
     async function sendMessage() {
         const userInput = document.getElementById('user-input');
         const message = userInput.value.trim();
@@ -882,77 +1040,33 @@ button:hover {
         userMessageDiv.textContent = message;
         messagesDiv.appendChild(userMessageDiv);
 
-        // Create and show typing indicator after user message
+        userInput.value = '';
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        if (apiMode === 'ws') {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const typingIndicator = document.createElement("div");
+                typingIndicator.className = "typing-indicator";
+                typingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+                messagesDiv.appendChild(typingIndicator);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                socket.send(JSON.stringify({ message: message }));
+            } else {
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.classList.add("message", "bot-message");
+                botMessageDiv.textContent = "WebSocket not connected. Please wait or switch to REST API.";
+                messagesDiv.appendChild(botMessageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+            return;
+        }
+
+        // REST API logic
         const typingIndicator = document.createElement("div");
         typingIndicator.className = "typing-indicator";
         typingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
         messagesDiv.appendChild(typingIndicator);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-        // Clear input field
-        userInput.value = '';
-
-        // Helper: typewriter effect for HTML content
-        function typeBotMessage(element, html, delay = 18) {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            const nodes = Array.from(tempDiv.childNodes);
-            element.innerHTML = '';
-            let nodeIdx = 0;
-
-            function typeNode(node, parent) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    let text = node.textContent;
-                    let i = 0;
-                    function typeChar() {
-                        if (i < text.length) {
-                            parent.appendChild(document.createTextNode(text[i]));
-                            i++;
-                            setTimeout(typeChar, delay);
-                            element.scrollIntoView({ behavior: "smooth", block: "end" });
-                        } else {
-                            typeNextNode();
-                        }
-                    }
-                    typeChar();
-                } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    const el = document.createElement(node.nodeName);
-                    for (let attr of node.attributes) {
-                        el.setAttribute(attr.name, attr.value);
-                    }
-                    parent.appendChild(el);
-                    let childNodes = Array.from(node.childNodes);
-                    let childIdx = 0;
-                    function typeChild() {
-                        if (childIdx < childNodes.length) {
-                            typeNode(childNodes[childIdx], el);
-                            childIdx++;
-                        } else {
-                            typeNextNode();
-                        }
-                    }
-                    if (childNodes.length > 0) {
-                        typeNode(childNodes[childIdx], el);
-                        childIdx++;
-                    } else {
-                        typeNextNode();
-                    }
-                } else {
-                    typeNextNode();
-                }
-            }
-
-            function typeNextNode() {
-                nodeIdx++;
-                if (nodeIdx < nodes.length) {
-                    typeNode(nodes[nodeIdx], element);
-                }
-            }
-
-            if (nodes.length > 0) {
-                typeNode(nodes[nodeIdx], element);
-            }
-        }
 
         try {
             const response = await fetch('https://flask-hello-world-six-murex-51.vercel.app/', {
