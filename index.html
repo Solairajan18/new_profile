@@ -872,7 +872,10 @@ button:hover {
     let socket = null;
     let apiMode = 'rest';
     const wsUrl = 'wss://web-socket-2-3knj.onrender.com';
-    // const wsUrl = 'ws://localhost:8765'; // For local testing, change to your WebSocket server URL in production
+    let wsRetryCount = 0;
+    const maxWsRetries = 12; // 12 retries * 5 seconds = 1 minute
+    const wsRetryDelay = 5000; // 5 seconds
+    let wsSessionId = null; // 1. Store the session ID
 
     function setWsStatus(status, text) {
         const statusEl = document.getElementById('ws-status');
@@ -889,6 +892,7 @@ button:hover {
 
         socket.onopen = () => {
             setWsStatus('connected', 'Connected');
+            wsRetryCount = 0; // Reset counter on successful connection
         };
 
         socket.onmessage = (event) => {
@@ -898,29 +902,59 @@ button:hover {
                 typingIndicator.remove();
             }
 
-            const data = JSON.parse(event.data);
-            const botMessage = data.message || "Received empty message.";
-            
-            const botMessageDiv = document.createElement("div");
-            botMessageDiv.classList.add("message", "bot-message");
-            messagesDiv.appendChild(botMessageDiv);
-            
-            const html = marked.parse(botMessage);
-            typeBotMessage(botMessageDiv, html);
+            try {
+                const data = JSON.parse(event.data);
+                const botMessageChunk = data.message || "";
+
+                // 2. Extract and store the session ID from the server's response
+                if (data.session_id) {
+                    wsSessionId = data.session_id;
+                }
+
+                if (botMessageChunk) {
+                    let lastBotMessageDiv = messagesDiv.querySelector('.message.bot-message:last-of-type');
+                    
+                    // If there's no last message, or it's not streaming, create a new one.
+                    if (!lastBotMessageDiv || !lastBotMessageDiv.streamAnimator) {
+                        lastBotMessageDiv = document.createElement("div");
+                        lastBotMessageDiv.classList.add("message", "bot-message");
+                        messagesDiv.appendChild(lastBotMessageDiv);
+                        // Attach the new animator to the element itself
+                        lastBotMessageDiv.streamAnimator = new StreamAnimator(lastBotMessageDiv);
+                    }
+
+                    // Add the new chunk to the animator's queue
+                    lastBotMessageDiv.streamAnimator.addChunk(botMessageChunk);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+
+            } catch (error) {
+                console.error("Error processing WebSocket message:", error, "Data:", event.data);
+            }
         };
 
         socket.onerror = (error) => {
             console.error("WebSocket Error:", error);
-            setWsStatus('disconnected', 'Error');
+            // onclose will be called automatically after an error, where we handle the retry.
         };
 
         socket.onclose = () => {
-            setWsStatus('disconnected', 'Disconnected');
             socket = null;
+            wsSessionId = null; // Reset session ID on disconnection
+            // Only retry if we are still in WebSocket mode
+            if (apiMode === 'ws' && wsRetryCount < maxWsRetries) {
+                wsRetryCount++;
+                setWsStatus('connecting', `Retrying... (${wsRetryCount})`);
+                setTimeout(initWebSocket, wsRetryDelay);
+            } else {
+                setWsStatus('disconnected', 'Disconnected');
+                wsRetryCount = 0; // Reset for next manual attempt
+            }
         };
     }
 
     function closeWebSocket() {
+        wsRetryCount = maxWsRetries; // Prevent retries when manually closing
         if (socket) {
             socket.onclose = null; // Prevent onclose handler from firing on manual close
             socket.close();
@@ -1026,6 +1060,54 @@ button:hover {
         }
     }
 
+    class StreamAnimator {
+        constructor(element) {
+            this.element = element;
+            this.fullText = "";
+            this.queue = [];
+            this.isRendering = false;
+            this.speed = 30; // Milliseconds per render cycle
+        }
+
+        addChunk(chunk) {
+            this.queue.push(...chunk.split(''));
+            if (!this.isRendering) {
+                this.render();
+            }
+        }
+
+        render() {
+            this.isRendering = true;
+            const startTime = performance.now();
+
+            const animate = (currentTime) => {
+                // Add characters from the queue to the full text
+                while (this.queue.length > 0) {
+                    this.fullText += this.queue.shift();
+                    // Break the loop if we've spent enough time in this frame
+                    if (performance.now() - startTime > 16) break; 
+                }
+
+                // Render the current full text as Markdown
+                this.element.innerHTML = marked.parse(this.fullText);
+                this.element.scrollIntoView({ behavior: "smooth", block: "end" });
+
+                // If there are still characters in the queue, continue the animation
+                if (this.queue.length > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    this.isRendering = false;
+                    // Final render to ensure everything is up to date
+                    this.element.innerHTML = marked.parse(this.fullText);
+                    // Re-apply syntax highlighting if you use a library like highlight.js
+                    // For example: this.element.querySelectorAll('pre code').forEach(block => hljs.highlightBlock(block));
+                }
+            };
+
+            requestAnimationFrame(animate);
+        }
+    }
+
     async function sendMessage() {
         const userInput = document.getElementById('user-input');
         const message = userInput.value.trim();
@@ -1050,7 +1132,19 @@ button:hover {
                 typingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
                 messagesDiv.appendChild(typingIndicator);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                socket.send(JSON.stringify({ message: message }));
+                
+                // **FIX:** Clear the animator from the previous bot message before sending a new one.
+                let lastBotMessageDiv = messagesDiv.querySelector('.message.bot-message:last-of-type');
+                if (lastBotMessageDiv && lastBotMessageDiv.streamAnimator) {
+                    lastBotMessageDiv.streamAnimator = null;
+                }
+
+                // 3. Send the session ID back to the server
+                const payload = { message: message };
+                if (wsSessionId) {
+                    payload.session_id = wsSessionId;
+                }
+                socket.send(JSON.stringify(payload));
             } else {
                 const botMessageDiv = document.createElement("div");
                 botMessageDiv.classList.add("message", "bot-message");
