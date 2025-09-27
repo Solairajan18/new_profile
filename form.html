@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>Feedback</title></head>
+<body>
+  <h3>Give us your feedback</h3>
+  <textarea id="feedback" placeholder="Write your feedback..."></textarea><br><br>
+  <button onclick="sendFeedback()">Submit</button>
+  <p id="status"></p>
+
+  <script>
+    function sendFeedback() {
+      const feedback = document.getElementById("feedback").value.trim();
+      if (!feedback) {
+        document.getElementById("status").innerText = "⚠️ Please enter feedback.";
+        return;
+      }
+
+      const url = "https://docs.google.com/forms/u/0/d/e/1FAIpQLScuChiAISSfQ2Lq_f-utJ8dvJGUjVj5SX7es3pkPkHjWnQLhw/formResponse";
+      const formData = new FormData();
+      formData.append("entry.1496290439", feedback);  // ✅ your field ID
+
+      fetch(url, {
+        method: "POST",
+        mode: "no-cors", // Google Forms requires no-cors
+        body: formData
+      }).then(() => {
+        document.getElementById("status").innerText = "✅ Thanks for your feedback!";
+        document.getElementById("feedback").value = "";
+      }).catch(err => {
+        document.getElementById("status").innerText = "❌ Error submitting feedback.";
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>

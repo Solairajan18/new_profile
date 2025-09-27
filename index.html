@@ -609,6 +609,24 @@
             <input type="text" id="user-input" placeholder="Type your message...">
             <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
+        <div class="chat-footer">
+            <a href="#" onclick="openFeedback(event)">Provide feedback</a>
+        </div>
+        <div class="feedback-window" id="feedback-window" style="display:none;">
+            <div class="feedback-content">
+                <h6 style="margin:0 0 8px 0; color:#fff; padding-top: 4px;">Help improve <span style="font-weight:bold; background: linear-gradient(90deg, #00B87B 0%, #007bff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-fill-color: transparent;">Sol AI</span> by providing your feedback:</h6>
+                <textarea id="feedback-text" placeholder="Write your feedback..."></textarea>
+                <div class="feedback-actions">
+                    <button onclick="closeFeedback()" class="feedback-back-btn">Back to chat</button>
+                    <button onclick="submitFeedback()">Submit</button>
+                </div>
+                <p id="feedback-status"></p>
+            </div>
+        </div>
+        <!-- Success toast popup -->
+        <div id="feedback-toast" class="feedback-toast" style="display:none;" aria-live="polite" aria-atomic="true">
+            <div class="toast-card">Thank you for your valuable feedback ❤️</div>
+        </div>
     </div>
 </div>
 
@@ -801,6 +819,100 @@
 
 .chat-input input:focus {
     background: #23272f;
+}
+
+.chat-footer {
+    padding: 8px 12px;
+    background: #23272f;
+    border-top: 1px solid #22242a;
+    text-align: center; /* bottom center alignment */
+}
+.chat-footer a {
+    color: #b5b5b5; /* gray link */
+    text-decoration: none; /* remove underline */
+    font-size: 0.95rem;
+}
+.chat-footer a:hover {
+    color: #ffffff;
+}
+
+.feedback-window {
+    background: #1a1d23;
+    border-top: 1px solid #22242a;
+}
+.feedback-content {
+    height: 340px; /* match chat-messages height */
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* allow positioned actions bar */
+}
+.feedback-content textarea {
+    flex: 1;
+    resize: vertical;
+    min-height: 180px;
+    background: #181a20;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 12px;
+    outline: none;
+}
+.feedback-actions {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* align back-left and submit-right */
+}
+.feedback-back-btn {
+    position: static; /* align within actions bar */
+}
+
+/* Animated status message for feedback submission */
+#feedback-status {
+    color: #cfe9ff;
+    min-height: 22px;
+    margin-top: 6px;
+}
+#feedback-status.success {
+    color: #21e91a;
+    animation: feedbackFadeIn 400ms ease-out, feedbackGlow 1600ms ease-in-out 2;
+}
+@keyframes feedbackFadeIn {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes feedbackGlow {
+    0%, 100% { text-shadow: none; }
+    50% { text-shadow: 0 0 8px rgba(33,233,26,0.6), 0 0 12px rgba(0,123,255,0.4); }
+}
+
+/* Toast popup for feedback success */
+.feedback-toast {
+    position: absolute;
+    inset: 0;
+    display: none; /* toggled to flex when shown */
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    z-index: 5;
+}
+.feedback-toast .toast-card {
+    background: #222630;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 10px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+    font-size: 1rem;
+    letter-spacing: 0.2px;
+    animation: toastPop 280ms ease-out;
+}
+@keyframes toastPop {
+    0% { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
 }
 
 button {
@@ -1216,6 +1328,71 @@ button:hover {
             sendMessage();
         }
     });
+
+    // Feedback form toggling
+    function openFeedback(e) {
+        if (e) e.preventDefault();
+        const fw = document.getElementById('feedback-window');
+        const messages = document.querySelector('.chat-messages');
+        const input = document.querySelector('.chat-input');
+        const footer = document.querySelector('.chat-footer');
+        fw.style.display = 'block';
+        messages.style.display = 'none';
+        input.style.display = 'none';
+        footer.style.display = 'none';
+    }
+
+    function closeFeedback(e) {
+        if (e) e.preventDefault();
+        const fw = document.getElementById('feedback-window');
+        const messages = document.querySelector('.chat-messages');
+        const input = document.querySelector('.chat-input');
+        const footer = document.querySelector('.chat-footer');
+        const toast = document.getElementById('feedback-toast');
+        fw.style.display = 'none';
+        messages.style.display = 'flex';
+        input.style.display = 'flex';
+        footer.style.display = 'block';
+        if (toast) toast.style.display = 'none';
+        const statusEl = document.getElementById('feedback-status');
+        if (statusEl) statusEl.textContent = '';
+    }
+
+    // Submit feedback to Google Form backend (from form.html)
+    function submitFeedback() {
+        const feedbackEl = document.getElementById('feedback-text');
+        const statusEl = document.getElementById('feedback-status');
+        const feedback = feedbackEl.value.trim();
+        if (!feedback) {
+            statusEl.textContent = '⚠️ Please enter feedback.';
+            return;
+        }
+
+        const url = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScuChiAISSfQ2Lq_f-utJ8dvJGUjVj5SX7es3pkPkHjWnQLhw/formResponse';
+        const formData = new FormData();
+        formData.append('entry.1496290439', feedback);
+
+        fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: formData
+        }).then(() => {
+            // Clear inline status and show toast popup
+            statusEl.textContent = '';
+            feedbackEl.value = '';
+            const toast = document.getElementById('feedback-toast');
+            toast.style.display = 'flex';
+            // Auto-hide toast after a short delay, then return to chat
+            setTimeout(() => {
+                toast.style.display = 'none';
+                closeFeedback();
+            }, 2400);
+        }).catch(err => {
+            statusEl.textContent = '❌ Error submitting feedback.';
+            statusEl.classList.remove('success');
+            console.error(err);
+        });
+    }
 </script>
     </body>
 </html>
