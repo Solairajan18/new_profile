@@ -470,10 +470,12 @@
             </div>
 
             <!-- CAPTCHA -->
-            <div class="col-12">
-                <div class="g-recaptcha" data-sitekey="6Leek0AsAAAAAD-v-Btn34dZPUhu_lHZ4x6GQ-sN"></div>
-                <div id="captcha-error" class="text-danger mt-2" style="display: none;">Please complete the CAPTCHA</div>
-            </div>
+                <!--
+                <div class="col-12">
+                    <div class="g-recaptcha" data-sitekey="6Leek0AsAAAAAD-v-Btn34dZPUhu_lHZ4x6GQ-sN"></div>
+                    <div id="captcha-error" class="text-danger mt-2" style="display: none;">Please complete the CAPTCHA</div>
+                </div>
+                -->
 
             <audio id="clickSound" src="welcome.mp3" preload="auto"></audio>
 
@@ -485,7 +487,7 @@
 </section>
                     <!-- Contact End -->
 <!-- Add reCAPTCHA JS -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
 
 <script>
     function playClickSound() {
@@ -494,18 +496,17 @@
     }
 
     function validateForm(event) {
-        const captchaResponse = grecaptcha.getResponse();
-        const captchaError = document.getElementById("captcha-error");
-
-        if (captchaResponse.length === 0) {
-            event.preventDefault(); // stop form submission
-            captchaError.style.display = "block";
-            return false;
-        } else {
-            captchaError.style.display = "none";
-        }
-
-        return true; // continue form submission
+            // reCAPTCHA validation commented out
+            // const captchaResponse = grecaptcha.getResponse();
+            // const captchaError = document.getElementById("captcha-error");
+            // if (captchaResponse.length === 0) {
+            //     event.preventDefault(); // stop form submission
+            //     captchaError.style.display = "block";
+            //     return false;
+            // } else {
+            //     captchaError.style.display = "none";
+            // }
+            return true; // continue form submission
     }
 </script>
                     <!-- Footer Start -->
